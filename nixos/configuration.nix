@@ -2,13 +2,21 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, outputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      inputs.home-manager.nixosModules.home-manager
     ];
+
+  home-manager = {
+    extraSpecialArgs = { inherit inputs outputs; };
+    users = {
+      leon = import ../home/default.nix;
+    };
+  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -52,6 +60,7 @@
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
+  services.gnome.gnome-browser-connector.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -60,7 +69,7 @@
   };
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  services.printing.enable = false;
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -86,26 +95,61 @@
     isNormalUser = true;
     description = "leon";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-       thunderbird
+    # packages = with pkgs; [
+    # ];
+  };
+
+  programs.fish.enable = true;
+  users.defaultUserShell = pkgs.fish;
+
+
+  # Install firefox.
+  programs.firefox = {
+    enable = true;
+    policies.SearchEngines.Add = [
+      { # example numero uno
+        Name = "NixOS Search";
+        URLTemplate = "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
+        Method = "GET"; # "POST"
+        IconURL = "https://search.nixos.org/favicon.png";
+      }
     ];
   };
 
-  # Install firefox.
-  programs.firefox.enable = true;
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 4d --keep 3";
+    flake = "/home/leon/lonnix/";
+  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfreePredicate = _: true;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-     helix
-     git
-     wget
-     curl
+    texliveFull
+    fish
+    zotero
+    obsidian
+    helix
+    git
+    wget
+    ripgrep
+    curl
+
+    nextcloud-client
+
+    gnome-tweaks
+    android-udev-rules
+
+    wl-clipboard
+
+    jdk
   ];
 
   environment.variables.EDITOR = "hx";
@@ -117,9 +161,25 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
-
   # List services that you want to enable:
 
+  services.dbus.packages = [ pkgs.gcr ];
+
+  services.mullvad-vpn = {
+    enable = true;
+    package = pkgs.mullvad-vpn;
+  };
+
+  services.pcscd.enable = true;
+  programs.gnupg.agent = {
+    enable = true;
+
+  };
+  # programs.gnupg = {
+  #   enable = true;
+  #   pinentryFlavor = "gtk2";
+  #   enbaleSSHSupport = true;
+  # };
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
