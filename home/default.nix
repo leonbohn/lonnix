@@ -10,6 +10,7 @@
 }: {
   # You can import other home-manager modules here
   imports = [
+    ./mail.nix
     # ./mozilla.nix
     # If you want to use modules your own flake exports (from modules/home-manager):
     # outputs.homeManagerModules.example
@@ -64,12 +65,13 @@
     spotify-player
     signal-desktop
     just
-    lazygit
 
     nil # language server vor nix
 
     vscode
     unstable.zed-editor
+
+    texliveFull
 
     ltex-ls-plus
 
@@ -86,23 +88,6 @@
     };
   };
 
-  accounts.email = {
-    accounts.rwth = {
-      address = "leon.bohn@rwth-aachen.de";
-      realName = "León Bohn";
-      msmtp.enable = true;
-      thunderbird.enable = true;
-    };
-    accounts.lics = {
-      primary = true;
-      address = "bohn@lics.rwth-aachen.de";
-      thunderbird.enable = true;
-      realName = "León Bohn";
-      imap.host = "mail.rwth-aachen.de";
-      msmtp.enable = true;
-      smtp.host = "mail.rwth-aachen.de";
-    };
-  };
 
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
@@ -136,7 +121,9 @@
     enable = true;
     interactiveShellInit = ''
       set fish_greeting # Disable greeting
-      alias lg lazygit
+      alias lg='lazygit'
+      alias ls='eza'
+      alias l='eza -a'
     '';
     plugins = [
       # { name = "grc"; src = pkgs.fishPlugins.grc.src; }
@@ -156,7 +143,21 @@
   # };
 
   programs.gpg.enable = true;
-  programs.ssh.enable = true;
+  programs.ssh = {
+    enable = true;
+    extraConfig = "
+      Host *
+        AddKeysToAgent yes
+      Host pi 192.168.178.10
+        HostName 192.168.178.10
+        IdentityFile ~/.ssh/pi
+        User leon
+      Host vps 152.53.1.124
+        HostName 152.53.1.124
+        IdentityFile ~/.ssh/vps
+        User leon
+    ";
+  };
 
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";

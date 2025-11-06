@@ -133,8 +133,18 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    texliveFull
     fish
+
+    eza
+    bottom
+
+    lazygit
+
+    yazi
+    yaziPlugins.git
+    yaziPlugins.diff
+    yaziPlugins.lazygit
+    
     zotero
     obsidian
     helix
@@ -151,6 +161,16 @@
     wl-clipboard
 
     jdk
+
+    flutter
+
+    rustc
+    cargo
+    cargo-binstall
+
+    typst
+
+    comma
   ];
 
   environment.variables.EDITOR = "hx";
