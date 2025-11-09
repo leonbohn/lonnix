@@ -75,6 +75,7 @@
 
     ltex-ls-plus
 
+    gnomeExtensions.tray-icons-reloaded
     gnomeExtensions.user-themes
     gnomeExtensions.dash-to-panel
     gnomeExtensions.night-theme-switcher
