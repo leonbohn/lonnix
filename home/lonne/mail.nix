@@ -1,5 +1,4 @@
-{ pkgs, config, lib, ... }:
-{
+{ pkgs, config, lib, ... }: {
   accounts.email.accounts = {
     "lics" = {
       primary = true;
@@ -56,10 +55,9 @@
       realName = "León Bohn";
       thunderbird = {
         enable = true;
-        settings =
-          id: {
-            "mail.server.server_${id}.authMethod" = 10;
-            "mail.smtpserver.smtp_${id}.authMethod" = 10;
+        settings = id: {
+          "mail.server.server_${id}.authMethod" = 10;
+          "mail.smtpserver.smtp_${id}.authMethod" = 10;
         };
       };
       userName = "leoboh241293@gmail.com";
@@ -71,9 +69,7 @@
       smtp = {
         host = "smtp.gmail.com";
         port = 587;
-        tls = {
-          enable = true;
-        };
+        tls = { enable = true; };
       };
     };
   };

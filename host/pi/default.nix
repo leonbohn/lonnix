@@ -5,17 +5,14 @@
 { config, pkgs, inputs, outputs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      inputs.home-manager.nixosModules.home-manager
-    ];
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    inputs.home-manager.nixosModules.home-manager
+  ];
 
   home-manager = {
     extraSpecialArgs = { inherit inputs outputs; };
-    users = {
-      leon = import ../home/default.nix;
-    };
+    users = { leon = import ../home/default.nix; };
   };
 
   # Bootloader.
@@ -25,7 +22,8 @@
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  boot.initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device = "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
+  boot.initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device =
+    "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
   networking.hostName = "lonnix"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -95,7 +93,7 @@
   users.users.leon = {
     isNormalUser = true;
     description = "leon";
-    extraGroups = [ "networkmanager" "wheel" "adbusers"];
+    extraGroups = [ "networkmanager" "wheel" "adbusers" ];
     # packages = with pkgs; [
     # ];
     #
@@ -104,18 +102,16 @@
   programs.fish.enable = true;
   users.defaultUserShell = pkgs.fish;
 
-
   # Install firefox.
   programs.firefox = {
     enable = true;
-    policies.SearchEngines.Add = [
-      { # example numero uno
-        Name = "NixOS Search";
-        URLTemplate = "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
-        Method = "GET"; # "POST"
-        IconURL = "https://search.nixos.org/favicon.png";
-      }
-    ];
+    policies.SearchEngines.Add = [{ # example numero uno
+      Name = "NixOS Search";
+      URLTemplate =
+        "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
+      Method = "GET"; # "POST"
+      IconURL = "https://search.nixos.org/favicon.png";
+    }];
   };
 
   programs.nh = {
@@ -136,7 +132,6 @@
     dedicatedServer.openFirewall = false;
     localNetworkGameTransfers.openFirewall = true;
   };
-
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -180,7 +175,6 @@
 
     jdk
 
-
     rustc
     cargo
     cargo-binstall
@@ -209,16 +203,14 @@
   };
 
   services.pcscd.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-  };
+  programs.gnupg.agent = { enable = true; };
 
   programs.adb.enable = true;
 
   services.udev.extraRules = ''
     # enable wake on USB for keyboard
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="3434", ATTR{idProduct}=="01e0", ATTR{power/wakeup}="enabled"
-    '';
+  '';
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 

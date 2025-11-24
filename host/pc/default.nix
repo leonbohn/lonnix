@@ -5,17 +5,14 @@
 { config, pkgs, inputs, outputs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      inputs.home-manager.nixosModules.home-manager
-    ];
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    inputs.home-manager.nixosModules.home-manager
+  ];
 
   home-manager = {
     extraSpecialArgs = { inherit inputs outputs; };
-    users = {
-      leon = import ../home/default.nix;
-    };
+    users = { lonne = import ../../home/lonne; };
   };
 
   # Bootloader.
@@ -25,13 +22,10 @@
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  boot.initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device = "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
-  networking.hostName = "lonnix"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  boot.initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device =
+    "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  networking.hostName = "lonnix-pc";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -80,42 +74,28 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.leon = {
+  # Define a user account.
+  users.users.lonne = {
     isNormalUser = true;
-    description = "leon";
-    extraGroups = [ "networkmanager" "wheel" "adbusers"];
-    # packages = with pkgs; [
-    # ];
-    #
+    description = "lonne";
+    extraGroups = [ "networkmanager" "wheel" "adbusers" ];
   };
 
   programs.fish.enable = true;
   users.defaultUserShell = pkgs.fish;
 
-
   # Install firefox.
   programs.firefox = {
     enable = true;
-    policies.SearchEngines.Add = [
-      { # example numero uno
-        Name = "NixOS Search";
-        URLTemplate = "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
-        Method = "GET"; # "POST"
-        IconURL = "https://search.nixos.org/favicon.png";
-      }
-    ];
+    policies.SearchEngines.Add = [{ # example numero uno
+      Name = "NixOS Search";
+      URLTemplate =
+        "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
+      Method = "GET"; # "POST"
+      IconURL = "https://search.nixos.org/favicon.png";
+    }];
   };
 
   programs.nh = {
@@ -137,7 +117,6 @@
     localNetworkGameTransfers.openFirewall = true;
   };
 
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnfreePredicate = _: true;
@@ -147,46 +126,19 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    fish
     usbutils
-
     eza
     bottom
-
-    lazygit
-
-    yazi
-    yaziPlugins.git
-    yaziPlugins.diff
-    yaziPlugins.lazygit
-
     zotero
     obsidian
-    helix
-    git
-    wget
-    ripgrep
-    curl
-
     nextcloud-client
-
     gnome-tweaks
-
     android-studio
     android-udev-rules
     flutter
-
     wl-clipboard
-
     jdk
-
-
-    rustc
-    cargo
-    cargo-binstall
-
     typst
-
     comma
   ];
 
@@ -209,16 +161,14 @@
   };
 
   services.pcscd.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-  };
+  programs.gnupg.agent = { enable = true; };
 
   programs.adb.enable = true;
 
   services.udev.extraRules = ''
     # enable wake on USB for keyboard
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="3434", ATTR{idProduct}=="01e0", ATTR{power/wakeup}="enabled"
-    '';
+  '';
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 

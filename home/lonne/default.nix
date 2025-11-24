@@ -1,13 +1,6 @@
 # This is your home-manager configuration file
 # Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
-{
-  inputs,
-  outputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
+{ inputs, outputs, lib, config, pkgs, ... }: {
   # You can import other home-manager modules here
   imports = [
     ./mail.nix
@@ -22,34 +15,9 @@
     # ./nvim.nix
   ];
 
-  nixpkgs = {
-    # You can add overlays here
-    overlays = [
-      # Add overlays your own flake exports (from overlays and pkgs dir):
-      outputs.overlays.additions
-      outputs.overlays.modifications
-      outputs.overlays.unstable-packages
-
-      # You can also add overlays exported from other flakes:
-      # neovim-nightly-overlay.overlays.default
-
-      # Or define it inline, for example:
-      # (final: prev: {
-      #   hi = final.hello.overrideAttrs (oldAttrs: {
-      #     patches = [ ./change-hello-to-hi.patch ];
-      #   });
-      # })
-    ];
-    # Configure your nixpkgs instance
-    config = {
-      # Disable if you don't want unfree packages
-      allowUnfree = true;
-    };
-  };
-
   home = {
-    username = "leon";
-    homeDirectory = "/home/leon";
+    username = "lonne";
+    homeDirectory = lib.mkForce "/home/lonne";
   };
 
   home.packages = with pkgs; [
@@ -66,10 +34,11 @@
     signal-desktop
     just
 
-    nil # language server vor nix
+    nil # language server for nix
+    nixfmt-classic
 
     vscode
-    unstable.zed-editor
+    # unstable.zed-editor
 
     texliveFull
 
@@ -84,11 +53,8 @@
 
   programs.thunderbird = {
     enable = true;
-    profiles."leon" = {
-      isDefault = true;
-    };
+    profiles."lonne" = { isDefault = true; };
   };
-
 
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
@@ -114,8 +80,7 @@
       "alt+5" = "goto_tab 5";
       "alt+6" = "goto_tab 6";
     };
-    extraConfig = ''
-    '';
+    extraConfig = "";
   };
 
   programs.fish = {
@@ -128,10 +93,12 @@
     '';
     plugins = [
       # { name = "grc"; src = pkgs.fishPlugins.grc.src; }
-      { name = "z"; src = pkgs.fishPlugins.z.src; }
+      {
+        name = "z";
+        src = pkgs.fishPlugins.z.src;
+      }
     ];
   };
-
 
   # programs.atuin = {
   #   enable = true;
@@ -146,18 +113,8 @@
   programs.gpg.enable = true;
   programs.ssh = {
     enable = true;
-    extraConfig = "
-      Host *
-        AddKeysToAgent yes
-      Host pi 192.168.178.10
-        HostName 192.168.178.10
-        IdentityFile ~/.ssh/pi
-        User leon
-      Host vps 152.53.1.124
-        HostName 152.53.1.124
-        IdentityFile ~/.ssh/vps
-        User leon
-    ";
+    extraConfig =
+      "\n      Host *\n        AddKeysToAgent yes\n      Host pi 192.168.178.10\n        HostName 192.168.178.10\n        IdentityFile ~/.ssh/pi\n        User leon\n      Host vps 152.53.1.124\n        HostName 152.53.1.124\n        IdentityFile ~/.ssh/vps\n        User leon\n    ";
   };
 
   # Nicely reload system units when changing configs

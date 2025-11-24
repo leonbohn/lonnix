@@ -15,70 +15,94 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    home-manager,
-    nix-index-database,
-    ...
-  } @ inputs: let
-    inherit (self) outputs;
-    # Supported systems for your flake packages, shell, etc.
-    systems = [
-      "aarch64-linux"
-      "i686-linux"
-      "x86_64-linux"
-      "aarch64-darwin"
-      "x86_64-darwin"
-    ];
-    # This is a function that generates an attribute by calling a function you
-    # pass to it, with each system as an argument
-    forAllSystems = nixpkgs.lib.genAttrs systems;
-  in {
-    # Your custom packages
-    # Accessible through 'nix build', 'nix shell', etc
-    packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
-    # Formatter for your nix files, available through 'nix fmt'
-    # Other options beside 'alejandra' include 'nixpkgs-fmt'
-    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
+  outputs = { self, nixpkgs, home-manager, nix-index-database, agenix
+    , treefmt-nix, ... }@inputs:
+    let
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+      forAllSystems = nixpkgs.lib.genAttrs systems;
 
-    # Your custom packages and modifications, exported as overlays
-    overlays = import ./overlays {inherit inputs;};
-    # Reusable nixos modules you might want to export
-    # These are usually stuff you would upstream into nixpkgs
-    # nixosModules = import ./modules/nixos;
-    # Reusable home-manager modules you might want to export
-    # These are usually stuff you would upstream into home-manager
-    # homeManagerModules = import ./modules/home-manager;
+      treefmtEval = forAllSystems (system:
+        treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
+          projectRootFile = "flake.nix";
+          programs = {
+            nixfmt.enable = true; # Format Nix files
+            prettier.enable = true; # Format JSON, YAML, Markdown
+            shellcheck.enable = true; # Lint shell scripts
+            shfmt.enable = true; # Format shell scripts
+          };
+          settings.formatter = { prettier.excludes = [ "*.lock" ]; };
+        });
+    in {
+      # Formatter for `nix fmt`
+      formatter =
+        forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
 
-    # NixOS configuration entrypoint
-    # Available through 'nixos-rebuild --flake .#your-hostname'
-    nixosConfigurations = {
-      lonnix = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
-        modules = [
-          # > Our main nixos configuration file <
-          ./nixos/configuration.nix
-        ];
+      # Checks for `nix flake check`
+      checks = forAllSystems (system: {
+        formatting = treefmtEval.${system}.config.build.check self;
+      });
+
+      nixosConfigurations = {
+        pc = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./host/pc
+            ./host/common
+
+            home-manager.nixosModules.home-manager
+            agenix.nixosModules.default
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.lonne = import ./home/lonne;
+            }
+          ];
+        };
+        pi = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./host/pi
+            ./host/common
+
+            home-manager.nixosModules.home-manager
+            agenix.nixosModules.default
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.lonne = import ./home/lonne;
+            }
+          ];
+        };
+      };
+      # Standalone home-manager configuration entrypoint
+      # Available through 'home-manager --flake .#your-username@your-hostname'
+      homeConfigurations = {
+        "lonne@lonnix" = home-manager.lib.homeManagerConfiguration {
+          pkgs =
+            nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+          extraSpecialArgs = { inherit inputs; };
+          modules = [
+            # > Our main home-manager configuration file <
+            ./home/default.nix
+            nix-index-database.homeModules.nix-index
+          ];
+        };
       };
     };
-
-    # Standalone home-manager configuration entrypoint
-    # Available through 'home-manager --flake .#your-username@your-hostname'
-    homeConfigurations = {
-      "leon@lonnix" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-        extraSpecialArgs = {inherit inputs outputs;};
-        modules = [
-          # > Our main home-manager configuration file <
-          ./home/default.nix
-          nix-index-database.homeModules.nix-index
-        ];
-      };
-    };
-  };
 }
