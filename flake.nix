@@ -57,7 +57,7 @@
       });
 
       nixosConfigurations = {
-        pc = nixpkgs.lib.nixosSystem {
+        "lonnix-pc" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
@@ -73,7 +73,7 @@
             }
           ];
         };
-        pi = nixpkgs.lib.nixosSystem {
+        "lonnix-pi" = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
           specialArgs = { inherit inputs; };
           modules = [
@@ -93,7 +93,7 @@
       # Standalone home-manager configuration entrypoint
       # Available through 'home-manager --flake .#your-username@your-hostname'
       homeConfigurations = {
-        "lonne@lonnix" = home-manager.lib.homeManagerConfiguration {
+        "lonne@lonnix-pc" = home-manager.lib.homeManagerConfiguration {
           pkgs =
             nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
           extraSpecialArgs = { inherit inputs; };

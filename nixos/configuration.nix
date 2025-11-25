@@ -26,7 +26,7 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   boot.initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device = "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
-  networking.hostName = "lonnix"; # Define your hostname.
+  networking.hostName = "lonnix-pc"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -122,7 +122,7 @@
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 4d --keep 3";
-    flake = "/home/leon/lonnix/";
+    flake = "/home/lonne/lonnix/";
   };
 
   programs.appimage = {

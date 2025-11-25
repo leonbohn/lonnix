@@ -16,14 +16,16 @@
   };
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-
-  boot.initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device =
-    "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+    kernelPackages = pkgs.linuxPackages_latest;
+    initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device =
+      "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
+    binfmt.emulatedSystems = ["aarch64-linux"];
+  };
 
   networking.hostName = "lonnix-pc";
 
@@ -80,7 +82,7 @@
   users.users.lonne = {
     isNormalUser = true;
     description = "lonne";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" ];
+    extraGroups = [ "networkmanager" "wheel" "adbusers" "kvm"];
   };
 
   programs.fish.enable = true;
@@ -102,7 +104,7 @@
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 4d --keep 3";
-    flake = "/home/leon/lonnix/";
+    flake = "/home/lonne/lonnix/";
   };
 
   programs.appimage = {
@@ -120,8 +122,14 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnfreePredicate = _: true;
+  nixpkgs.config.android_sdk.accept_license = true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix = {
+    settings = {
+      experimental-features = [ "nix-command" "flakes" ];
+      extra-platforms = config.boot.binfmt.emulatedSystems;
+    };
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -133,13 +141,19 @@
     obsidian
     nextcloud-client
     gnome-tweaks
-    android-studio
-    android-udev-rules
-    flutter
     wl-clipboard
     jdk
     typst
     comma
+
+    flutter
+    android-studio
+    android-tools
+    android-udev-rules
+    # androidsdk
+    # android-sdk-platform-tools
+    # android-sdk-emulator
+    # androidenv.androidPkgs.platform-tools
   ];
 
   environment.variables.EDITOR = "hx";

@@ -13,6 +13,7 @@
       ripgrep
       curl
 
+      clang
       rustc
       cargo
       cargo-binstall

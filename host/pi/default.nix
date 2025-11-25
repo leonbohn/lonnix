@@ -12,27 +12,48 @@
 
   home-manager = {
     extraSpecialArgs = { inherit inputs outputs; };
-    users = { leon = import ../home/default.nix; };
+    users = { lonne = import ../../home/lonne; };
   };
-
-  # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
+  
+  # Use the extlinux boot loader. (NixOS wants to enable GRUB by default)
+  boot.loader.grub.enable = false;
+  # Enables the generation of /boot/extlinux/extlinux.conf
+  boot.loader.generic-extlinux-compatible.enable = true;
+  
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  boot.initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device =
-    "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
-  networking.hostName = "lonnix"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking = {
+    hostName = "lonnix-pi";
+    interfaces.end0 = {
+      ipv4.addresses = [{
+        address = "192.168.178.10";
+        prefixLength = 24;
+      }];
+    };
+    defaultGateway = {
+      address = "192.168.178.1";
+      interface = "end0";
+    };
+    nameservers = [
+      "192.168.178.1"
+      "9.9.9.9"
+      "1.1.1.1"
+    ];
+  };
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  users.users.lonne = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+    hashedPassword = "$y$j9T$HWQfwzC75rr3cVjutfsjK/$4DFRUh0UH4P48t2hV109K0.uodpoY3q0umtSCs5nxI/";
+  };
+  programs.fish.enable = true;
+  users.defaultUserShell = pkgs.fish;
 
-  # Enable networking
-  networking.networkmanager.enable = true;
+  nix.settings.trusted-users = [ "lonne" ];
+
+  services.openssh.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
@@ -53,55 +74,6 @@
     LC_TIME = "de_DE.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
-  # Enable the GNOME Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-  services.gnome.gnome-browser-connector.enable = true;
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "altgr-intl";
-  };
-
-  # Enable CUPS to print documents.
-  services.printing.enable = false;
-
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
-  };
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.leon = {
-    isNormalUser = true;
-    description = "leon";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" ];
-    # packages = with pkgs; [
-    # ];
-    #
-  };
-
-  programs.fish.enable = true;
-  users.defaultUserShell = pkgs.fish;
-
   # Install firefox.
   programs.firefox = {
     enable = true;
@@ -118,20 +90,9 @@
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 4d --keep 3";
-    flake = "/home/leon/lonnix/";
+    flake = "/home/lonne/lonnix/";
   };
 
-  programs.appimage = {
-    enable = true;
-    binfmt = true;
-  };
-
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = false;
-    dedicatedServer.openFirewall = false;
-    localNetworkGameTransfers.openFirewall = true;
-  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -150,75 +111,18 @@
 
     lazygit
 
-    yazi
-    yaziPlugins.git
-    yaziPlugins.diff
-    yaziPlugins.lazygit
-
-    zotero
-    obsidian
     helix
     git
     wget
     ripgrep
     curl
 
-    nextcloud-client
-
-    gnome-tweaks
-
-    android-studio
-    android-udev-rules
-    flutter
-
-    wl-clipboard
-
-    jdk
-
     rustc
     cargo
     cargo-binstall
-
-    typst
-
-    comma
   ];
 
   environment.variables.EDITOR = "hx";
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-  # List services that you want to enable:
-
-  services.dbus.packages = [ pkgs.gcr ];
-
-  services.mullvad-vpn = {
-    enable = true;
-    package = pkgs.mullvad-vpn;
-  };
-
-  services.pcscd.enable = true;
-  programs.gnupg.agent = { enable = true; };
-
-  programs.adb.enable = true;
-
-  services.udev.extraRules = ''
-    # enable wake on USB for keyboard
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="3434", ATTR{idProduct}=="01e0", ATTR{power/wakeup}="enabled"
-  '';
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
