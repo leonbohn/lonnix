@@ -3,10 +3,10 @@
     [
       fish
       tmux
+      jq
 
       eza
       bottom
-      helix
       lazygit
       git
       wget

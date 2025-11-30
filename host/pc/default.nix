@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, outputs, ... }:
+{ config, pkgs, lib, inputs, outputs, ... }:
 
 {
   imports = [ # Include the results of the hardware scan.
@@ -24,7 +24,7 @@
     kernelPackages = pkgs.linuxPackages_latest;
     initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device =
       "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
-    binfmt.emulatedSystems = ["aarch64-linux"];
+    binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 
   networking.hostName = "lonnix-pc";
@@ -59,6 +59,8 @@
   services.xserver.desktopManager.gnome.enable = true;
   services.gnome.gnome-browser-connector.enable = true;
 
+  # services.desktopManager.cosmic.enable = true;
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -82,7 +84,7 @@
   users.users.lonne = {
     isNormalUser = true;
     description = "lonne";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" "kvm"];
+    extraGroups = [ "networkmanager" "wheel" "adbusers" "kvm" ];
   };
 
   programs.fish.enable = true;
@@ -140,11 +142,21 @@
     zotero
     obsidian
     nextcloud-client
+
     gnome-tweaks
+    gnomeExtensions.home-assistant-extension
+    gnomeExtensions.smart-home
+    gnomeExtensions.tray-icons-reloaded
+    gnomeExtensions.user-themes
+    gnomeExtensions.dash-to-panel
+    gnomeExtensions.night-theme-switcher
+    gnomeExtensions.just-perfection
+
     wl-clipboard
     jdk
     typst
     comma
+    vlc
 
     flutter
     android-studio
@@ -154,6 +166,8 @@
     # android-sdk-platform-tools
     # android-sdk-emulator
     # androidenv.androidPkgs.platform-tools
+
+    openconnect
   ];
 
   environment.variables.EDITOR = "hx";

@@ -21,7 +21,8 @@
     };
 
     agenix = {
-      url = "github:ryantm/agenix";
+      # url = "github:ryantm/agenix";
+      url = "github:yaxitech/ragenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -67,6 +68,10 @@
             home-manager.nixosModules.home-manager
             agenix.nixosModules.default
             {
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                secrets = ./secrets;
+              };
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.lonne = import ./home/lonne;
@@ -94,14 +99,18 @@
       # Available through 'home-manager --flake .#your-username@your-hostname'
       homeConfigurations = {
         "lonne@lonnix-pc" = home-manager.lib.homeManagerConfiguration {
+          # inherit pkgs;
           pkgs =
             nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-          extraSpecialArgs = { inherit inputs; };
+          extraSpecialArgs = {
+            inherit self inputs;
+            res = ./secrets;
+          };
           modules = [
-            # > Our main home-manager configuration file <
+            agenix.homeManagerModules.default
+
             ./home/default.nix
-            nix-index-database.homeModules.nix-index
-          ];
+         ];
         };
       };
     };

@@ -1,9 +1,11 @@
 # This is your home-manager configuration file
 # Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
-{ inputs, outputs, lib, config, pkgs, ... }: {
+{ inputs, outputs, lib, secrets, config, pkgs, ... }: {
   # You can import other home-manager modules here
   imports = [
     ./mail.nix
+    ./cal.nix
+    ./helix.nix
     # ./mozilla.nix
     # If you want to use modules your own flake exports (from modules/home-manager):
     # outputs.homeManagerModules.example
@@ -13,6 +15,7 @@
 
     # You can also split up your configuration and import pieces of it here:
     # ./nvim.nix
+    inputs.agenix.homeManagerModules.default
   ];
 
   home = {
@@ -43,17 +46,11 @@
     texliveFull
 
     ltex-ls-plus
-
-    gnomeExtensions.tray-icons-reloaded
-    gnomeExtensions.user-themes
-    gnomeExtensions.dash-to-panel
-    gnomeExtensions.night-theme-switcher
-    gnomeExtensions.just-perfection
   ];
 
   programs.thunderbird = {
     enable = true;
-    profiles."lonne" = { isDefault = true; };
+    profiles."leon" = { isDefault = true; };
   };
 
   # Add stuff for your user as you see fit:
@@ -79,6 +76,7 @@
       "alt+4" = "goto_tab 4";
       "alt+5" = "goto_tab 5";
       "alt+6" = "goto_tab 6";
+      "cmd+shift+t" = "new_tab_with_cwd";
     };
     extraConfig = "";
   };
@@ -114,7 +112,7 @@
   programs.ssh = {
     enable = true;
     extraConfig =
-      "\n      Host *\n        AddKeysToAgent yes\n      Host pi 192.168.178.10\n        HostName 192.168.178.10\n        IdentityFile ~/.ssh/pi\n        User leon\n      Host vps 152.53.1.124\n        HostName 152.53.1.124\n        IdentityFile ~/.ssh/vps\n        User leon\n    ";
+      "\n      Host *\n        AddKeysToAgent yes\n      Host pi 192.168.178.10\n        HostName 192.168.178.10\n        IdentityFile ~/.ssh/pi\n        User leon\n      Host vps 152.53.1.124\n        HostName 152.53.1.124\n        IdentityFile ~/.ssh/vps\n        User leon\n";
   };
 
   # Nicely reload system units when changing configs
@@ -122,4 +120,15 @@
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   home.stateVersion = "25.05";
+  
+ age = {
+    secrets = {
+      mail.file = secrets + /mail.age;
+      radicale.file = secrets + /radicale.age;
+    };
+    # identityPaths = [ "${config.home.homeDirectory}/.ssh" ];
+    # secretsDir = "${config.home.homeDirectory}/.agenix";
+  };
+  
+
 }
