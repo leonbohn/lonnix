@@ -158,6 +158,9 @@
     comma
     vlc
 
+    inkscape
+    inkscape-with-extensions
+
     flutter
     android-studio
     android-tools
