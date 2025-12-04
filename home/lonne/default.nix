@@ -1,6 +1,15 @@
 # This is your home-manager configuration file
 # Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
-{ inputs, outputs, lib, secrets, config, pkgs, ... }: {
+{
+  inputs,
+  outputs,
+  lib,
+  secrets,
+  config,
+  pkgs,
+  ...
+}:
+{
   # You can import other home-manager modules here
   imports = [
     ./mail.nix
@@ -24,33 +33,29 @@
   };
 
   home.packages = with pkgs; [
-    xz
-    zip
-    unzip
-    p7zip
-    tree
-    which
-    gnupg
-    nix-output-monitor
-    zola
     spotify-player
     signal-desktop
-    just
 
     nil # language server for nix
     nixfmt-classic
+    nixd
 
     vscode
-    # unstable.zed-editor
+    zed-editor
 
     texliveFull
 
     ltex-ls-plus
+
+    flatpak
+    gnome-software
   ];
 
   programs.thunderbird = {
     enable = true;
-    profiles."leon" = { isDefault = true; };
+    profiles."leon" = {
+      isDefault = true;
+    };
   };
 
   # Add stuff for your user as you see fit:
@@ -62,9 +67,16 @@
 
   programs.git = {
     enable = true;
-    delta.enable = true;
-    userName = "León Bohn";
-    userEmail = "bohn@lics.rwth-aachen.de";
+    settings = {
+      user = {
+        name = "León Bohn";
+        email = "bohn@lics.rwth-aachen.de";
+      };
+    };
+  };
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
   };
 
   programs.kitty = {
@@ -111,17 +123,18 @@
   programs.gpg.enable = true;
   programs.ssh = {
     enable = true;
-    extraConfig =
-      "\n      Host *\n        AddKeysToAgent yes\n      Host pi 192.168.178.10\n        HostName 192.168.178.10\n        IdentityFile ~/.ssh/pi\n        User leon\n      Host vps 152.53.1.124\n        HostName 152.53.1.124\n        IdentityFile ~/.ssh/vps\n        User leon\n";
+    enableDefaultConfig = false;
+    matchBlocks."*" = { };
+    extraConfig = "\n      Host *\n        AddKeysToAgent yes\n      Host pi 192.168.178.10\n        HostName 192.168.178.10\n        IdentityFile ~/.ssh/pi\n        User leon\n      Host vps 152.53.1.124\n        HostName 152.53.1.124\n        IdentityFile ~/.ssh/vps\n        User leon\n";
   };
 
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
-  home.stateVersion = "25.05";
-  
- age = {
+  home.stateVersion = "25.11";
+
+  age = {
     secrets = {
       mail.file = secrets + /mail.age;
       radicale.file = secrets + /radicale.age;
@@ -129,6 +142,5 @@
     # identityPaths = [ "${config.home.homeDirectory}/.ssh" ];
     # secretsDir = "${config.home.homeDirectory}/.agenix";
   };
-  
 
 }

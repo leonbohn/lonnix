@@ -2,17 +2,27 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, inputs, outputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  outputs,
+  ...
+}:
 
 {
-  imports = [ # Include the results of the hardware scan.
+  imports = [
+    # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
   home-manager = {
     extraSpecialArgs = { inherit inputs outputs; };
-    users = { lonne = import ../../home/lonne; };
+    users = {
+      lonne = import ../../home/lonne;
+    };
   };
 
   # Bootloader.
@@ -22,8 +32,8 @@
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_latest;
-    initrd.luks.devices."luks-85c5ce54-6990-4ce7-860c-06b2ed5bf70f".device =
-      "/dev/disk/by-uuid/85c5ce54-6990-4ce7-860c-06b2ed5bf70f";
+    initrd.luks.devices."luks-d5e498c1-4a23-476b-ac9c-61297e991ae2".device =
+      "/dev/disk/by-uuid/d5e498c1-4a23-476b-ac9c-61297e991ae2";
     binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 
@@ -55,8 +65,8 @@
   services.xserver.enable = true;
 
   # Enable the GNOME Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.displayManager.gdm.enable = true;
+  services.desktopManager.gnome.enable = true;
   services.gnome.gnome-browser-connector.enable = true;
 
   # services.desktopManager.cosmic.enable = true;
@@ -84,7 +94,12 @@
   users.users.lonne = {
     isNormalUser = true;
     description = "lonne";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" "kvm" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "adbusers"
+      "kvm"
+    ];
   };
 
   programs.fish.enable = true;
@@ -93,13 +108,15 @@
   # Install firefox.
   programs.firefox = {
     enable = true;
-    policies.SearchEngines.Add = [{ # example numero uno
-      Name = "NixOS Search";
-      URLTemplate =
-        "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
-      Method = "GET"; # "POST"
-      IconURL = "https://search.nixos.org/favicon.png";
-    }];
+    policies.SearchEngines.Add = [
+      {
+        # example numero uno
+        Name = "NixOS Search";
+        URLTemplate = "https://search.nixos.org/packages?channel=25.11&query={searchTerms}";
+        Method = "GET"; # "POST"
+        IconURL = "https://search.nixos.org/favicon.png";
+      }
+    ];
   };
 
   programs.nh = {
@@ -128,7 +145,10 @@
 
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       extra-platforms = config.boot.binfmt.emulatedSystems;
     };
   };
@@ -138,6 +158,16 @@
   environment.systemPackages = with pkgs; [
     usbutils
     eza
+    xz
+    zip
+    unzip
+    p7zip
+    tree
+    which
+    gnupg
+    nix-output-monitor
+    zola
+    just
     bottom
     zotero
     obsidian
@@ -164,8 +194,7 @@
     flutter
     android-studio
     android-tools
-    android-udev-rules
-    # androidsdk
+    androidsdk
     # android-sdk-platform-tools
     # android-sdk-emulator
     # androidenv.androidPkgs.platform-tools
@@ -186,13 +215,24 @@
 
   services.dbus.packages = [ pkgs.gcr ];
 
-  services.mullvad-vpn = {
-    enable = true;
-    package = pkgs.mullvad-vpn;
+  services.flatpak.enable = true;
+  systemd.services.flatpak-repo = {
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    '';
   };
 
+  # services.mullvad-vpn = {
+  #   enable = true;
+  #   package = pkgs.mullvad-vpn;
+  # };
+
   services.pcscd.enable = true;
-  programs.gnupg.agent = { enable = true; };
+  programs.gnupg.agent = {
+    enable = true;
+  };
 
   programs.adb.enable = true;
 
@@ -215,6 +255,6 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.05"; # Did you read the comment?
+  system.stateVersion = "25.11"; # Did you read the comment?
 
 }
