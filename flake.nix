@@ -21,8 +21,8 @@
     };
 
     agenix = {
-      # url = "github:ryantm/agenix";
-      url = "github:yaxitech/ragenix";
+      url = "github:ryantm/agenix";
+      # url = "github:yaxitech/ragenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -75,10 +75,13 @@
       nixosConfigurations = {
         "lonnix-pc" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
+          specialArgs = {
+            inherit inputs;
+            # secrets = ./secrets;
+          };
           modules = [
-            ./host/pc
             ./host/common
+            ./host/pc
 
             home-manager.nixosModules.home-manager
             agenix.nixosModules.default
@@ -95,10 +98,13 @@
         };
         "lonnix-pi" = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
-          specialArgs = { inherit inputs; };
+          specialArgs = {
+            inherit inputs;
+            # secrets = ./secrets;
+          };
           modules = [
-            ./host/pi
             ./host/common
+            ./host/pi
 
             home-manager.nixosModules.home-manager
             agenix.nixosModules.default

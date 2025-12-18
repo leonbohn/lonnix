@@ -36,6 +36,8 @@
     spotify-player
     signal-desktop
 
+    mattermost-desktop
+
     nil # language server for nix
     nixfmt-classic
     nixd
@@ -93,32 +95,17 @@
     extraConfig = "";
   };
 
-  programs.fish = {
+  programs.atuin = {
     enable = true;
-    interactiveShellInit = ''
-      set fish_greeting # Disable greeting
-      alias lg='lazygit'
-      alias ls='eza'
-      alias l='eza -a'
-    '';
-    plugins = [
-      # { name = "grc"; src = pkgs.fishPlugins.grc.src; }
-      {
-        name = "z";
-        src = pkgs.fishPlugins.z.src;
-      }
-    ];
+    settings = {
+      auto_sync = true;
+      sync_frequency = "5m";
+      sync_address = "https://api.atuin.sh";
+      search_mode = "fuzzy";
+      session_path = config.age.secrets.atuinsession.path;
+      key_path = config.age.secrets.atuinkey.path;
+    };
   };
-
-  # programs.atuin = {
-  #   enable = true;
-  #   settings = {
-  #     auto_sync = true;
-  #     sync_frequency = "5m";
-  #     sync_address = "https://api.atuin.sh";
-  #     search_mode = "fuzzy";
-  #   };
-  # };
 
   programs.gpg.enable = true;
   programs.ssh = {
@@ -138,6 +125,9 @@
     secrets = {
       mail.file = secrets + /mail.age;
       radicale.file = secrets + /radicale.age;
+      atuinkey.file = secrets + /atuinkey.age;
+      forgejo.file = secrets + /forgejo.age;
+      atuinsession.file = secrets + /atuinsession.age;
     };
     # identityPaths = [ "${config.home.homeDirectory}/.ssh" ];
     # secretsDir = "${config.home.homeDirectory}/.agenix";

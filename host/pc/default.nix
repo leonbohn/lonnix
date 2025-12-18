@@ -68,8 +68,7 @@
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
   services.gnome.gnome-browser-connector.enable = true;
-
-  # services.desktopManager.cosmic.enable = true;
+  services.desktopManager.cosmic.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -242,6 +241,11 @@
   '';
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
+
+  services.ollama = {
+    enable = true;
+    acceleration = "rocm";
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

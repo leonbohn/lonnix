@@ -2,24 +2,33 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, outputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  outputs,
+  ...
+}:
 
 {
-  imports = [ # Include the results of the hardware scan.
+  imports = [
+    # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
   home-manager = {
     extraSpecialArgs = { inherit inputs outputs; };
-    users = { lonne = import ../../home/lonne; };
+    users = {
+      lonne = import ../../home/lonne;
+    };
   };
-  
+
   # Use the extlinux boot loader. (NixOS wants to enable GRUB by default)
   boot.loader.grub.enable = false;
   # Enables the generation of /boot/extlinux/extlinux.conf
   boot.loader.generic-extlinux-compatible.enable = true;
-  
+
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
@@ -27,10 +36,12 @@
   networking = {
     hostName = "lonnix-pi";
     interfaces.end0 = {
-      ipv4.addresses = [{
-        address = "192.168.178.10";
-        prefixLength = 24;
-      }];
+      ipv4.addresses = [
+        {
+          address = "192.168.178.10";
+          prefixLength = 24;
+        }
+      ];
     };
     defaultGateway = {
       address = "192.168.178.1";
@@ -52,8 +63,6 @@
   users.defaultUserShell = pkgs.fish;
 
   nix.settings.trusted-users = [ "lonne" ];
-
-  services.openssh.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
@@ -77,13 +86,15 @@
   # Install firefox.
   programs.firefox = {
     enable = true;
-    policies.SearchEngines.Add = [{ # example numero uno
-      Name = "NixOS Search";
-      URLTemplate =
-        "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
-      Method = "GET"; # "POST"
-      IconURL = "https://search.nixos.org/favicon.png";
-    }];
+    policies.SearchEngines.Add = [
+      {
+        # example numero uno
+        Name = "NixOS Search";
+        URLTemplate = "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
+        Method = "GET"; # "POST"
+        IconURL = "https://search.nixos.org/favicon.png";
+      }
+    ];
   };
 
   programs.nh = {
@@ -93,12 +104,14 @@
     flake = "/home/lonne/lonnix/";
   };
 
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnfreePredicate = _: true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget

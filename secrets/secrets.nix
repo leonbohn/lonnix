@@ -9,4 +9,16 @@ in
   ];
   "radicale.age".publicKeys = [ pc ];
   "sciebo.age".publicKeys = [ pc ];
+  "atuinkey.age".publicKeys = [
+    pc
+    pi
+  ];
+  "atuinsession.age".publicKeys = [
+    pc
+    pi
+  ];
+  "forgejo.age".publicKeys = [
+    pc
+    pi
+  ];
 }
