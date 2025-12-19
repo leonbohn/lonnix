@@ -107,14 +107,16 @@
     };
   };
 
-  programs.gpg.enable = true;
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
+
     matchBlocks."*" = { };
+
     extraConfig = "\n      Host *\n        AddKeysToAgent yes\n      Host pi 192.168.178.10\n        HostName 192.168.178.10\n        IdentityFile ~/.ssh/pi\n        User leon\n      Host vps 152.53.1.124\n        HostName 152.53.1.124\n        IdentityFile ~/.ssh/vps\n        User leon\n";
   };
 
+  programs.gpg.enable = true;
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 

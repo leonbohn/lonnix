@@ -37,10 +37,28 @@
     binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 
-  networking.hostName = "lonnix-pc";
+  networking = {
+    hostName = "lonnix-pc";
+    interfaces.enp34s0 = {
+      ipv4.addresses = [
+        {
+          address = "192.168.178.61";
+          prefixLength = 24;
+        }
+      ];
+    };
+    defaultGateway = {
+      address = "192.168.178.1";
+      interface = "enp34s0";
+    };
+    nameservers = [
+      "192.168.178.1"
+      "9.9.9.9"
+      "1.1.1.1"
+    ];
 
-  # Enable networking
-  networking.networkmanager.enable = true;
+    networkmanager.enable = true;
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/Berlin";

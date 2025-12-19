@@ -1,34 +1,60 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  nix2container,
+  ...
+}:
 
 let
-  customCiImage = pkgs.dockerTools.streamLayeredImage {
-    name = "forgejo-nix-node-runner";
-    tag = "latest";
-    contents = with pkgs; [
-      bashInteractive
-      coreutils
-      git
-      cacert
-      nix
-      nodejs_20
-    ];
-    fakeRootCommands = ''
-      mkdir -p etc tmp root home/nixuser
-      echo "root:x:0:0:root:/root:/bin/bash" > etc/passwd
-      echo "nixuser:x:0:0:root:/home/nixuser:/bin/bash" > etc/passwd
-      echo "root:x:0:" > etc/group
-      echo "nixbld:x:30000:nixuser" >> etc/group
-    '';
+  nixosImage = nix2container.pullImage {
+    imageName = "nixos/nix";
+    imageDigest = "sha256:081b65e50a5c4e6ef4a9094a462da3b83ff76bfec70236eb010047fcee36e11c";
+    arch = "amd64";
+    sha256 = "sha256-UTiZD4EPpS0VNzTMOa2CQPrMsGk78NIsdiilsihdSBE=";
+  };
+
+  fnnr = nix2container.buildImage {
+    # tag = "latest";
+    name = "fnnr";
+    fromImage = nixosImage;
     config = {
-      Cmd = [ "${pkgs.bash}/bin/bash" ];
       Env = [
-        "PATH=/usr/bin:/bin:/home/nixuser/.nix-profile/bin"
         "NIX_PAGER=cat"
-        "USER=nixuser"
+        "USER=nobody"
+        "HOME=/"
         "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
         "NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
       ];
     };
+
+    copyToRoot = with pkgs; [
+      coreutils
+      openssh
+      nix
+      bash
+      nodejs_22
+      cacert
+      git
+      zola
+    ];
+
+    # ensure that nix command can be invoked
+    initializeNixDatabase = true;
+
+    layers = [
+      (nix2container.buildLayer {
+        deps = with pkgs; [
+          coreutils
+          openssh
+          nix
+          bash
+          nodejs_22
+          cacert
+          git
+          zola
+        ];
+      })
+    ];
   };
 in
 {
@@ -36,7 +62,7 @@ in
   virtualisation = {
     podman = {
       enable = true;
-      dockerCompat = true;
+      # dockerCompat = true;
       defaultNetwork.settings.dns_enabled = true;
     };
   };
@@ -44,16 +70,16 @@ in
   environment.systemPackages = with pkgs; [
     dive
     podman-tui
-    docker-compose
+    # docker-compose
     podman-compose
   ];
 
   # This systemd service ensures the image is loaded into Podman on boot
-  systemd.services.load-custom-ci-image = {
-    description = "Load custom CI image into podman";
+  systemd.services.load-fnnr = {
+    description = "Load custom CI image '${fnnr.imageName}' into podman";
     after = [ "podman.service" ];
     wantedBy = [ "multi-user.target" ];
-    script = "${customCiImage} | ${pkgs.podman}/bin/podman load";
+    script = "${fnnr.copyToPodman}/bin/copy-to-podman";
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -68,12 +94,8 @@ in
       url = "https://codeberg.org/";
       tokenFile = config.age.secrets.forgejo.path;
       labels = [
-        "nix-node:docker://forgejo-nix-node-runner:latest"
-
-        "ubuntu-latest:docker://node:16-bullseye"
-        "nixibert:docker://nixpkgs/nix"
+        "fnnr:docker://library/${fnnr.imageName}:${fnnr.imageTag}"
         "nix:docker://nixos/nix"
-        "cachix:docker://nixpkgs/cachix-flakes"
       ];
     };
   };

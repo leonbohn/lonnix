@@ -26,8 +26,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-index-database.url = "github:nix-community/nix-index-database";
-    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+    nix2container.url = "github:nlewo/nix2container";
   };
 
   outputs =
@@ -35,7 +34,7 @@
       self,
       nixpkgs,
       home-manager,
-      nix-index-database,
+      nix2container,
       agenix,
       treefmt-nix,
       ...
@@ -78,6 +77,7 @@
           specialArgs = {
             inherit inputs;
             # secrets = ./secrets;
+            nix2container = nix2container.packages.x86_64-linux.nix2container;
           };
           modules = [
             ./host/common
@@ -101,6 +101,7 @@
           specialArgs = {
             inherit inputs;
             # secrets = ./secrets;
+            nix2containerPkgs = nix2container.packages.aarch64-linux;
           };
           modules = [
             ./host/common

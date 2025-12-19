@@ -6,7 +6,10 @@
   ...
 }:
 {
-  imports = [ ./runner.nix ];
+  imports = [
+    ./runner.nix
+    ./ssh.nix
+  ];
 
   users.users.remotebuild = {
     isSystemUser = true;
@@ -27,6 +30,10 @@
       jq
       starship
 
+      skopeo # to obtain information on docker containers from remote
+
+      zellij
+
       eza
       bottom
       lazygit
@@ -44,8 +51,6 @@
       turso-cli
     ]
     ++ [ inputs.agenix.packages.x86_64-linux.default ];
-
-  services.openssh.enable = true;
 
   programs.fish = {
     enable = true;
