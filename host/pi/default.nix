@@ -7,9 +7,23 @@
   pkgs,
   inputs,
   outputs,
+  lib,
   ...
 }:
 
+let
+  zfsCompatibleKernelPackages = lib.filterAttrs (
+    name: kernelPackages:
+    (builtins.match "linux_[0-9]+_[0-9]+" name) != null
+    && (builtins.tryEval kernelPackages).success
+    && (!kernelPackages.${config.boot.zfs.package.kernelModuleAttribute}.meta.broken)
+  ) pkgs.linuxKernel.packages;
+  latestKernelPackage = lib.last (
+    lib.sort (a: b: (lib.versionOlder a.kernel.version b.kernel.version)) (
+      builtins.attrValues zfsCompatibleKernelPackages
+    )
+  );
+in
 {
   imports = [
     # Include the results of the hardware scan.
@@ -29,8 +43,8 @@
   # Enables the generation of /boot/extlinux/extlinux.conf
   boot.loader.generic-extlinux-compatible.enable = true;
 
-  # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # Use latest kernel that supports zfs
+  boot.kernelPackages = latestKernelPackage;
 
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking = {

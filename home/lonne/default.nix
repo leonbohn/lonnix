@@ -33,24 +33,11 @@
   };
 
   home.packages = with pkgs; [
-    spotify-player
-    signal-desktop
-
-    mattermost-desktop
-
     nil # language server for nix
     nixfmt-classic
     nixd
 
-    vscode
-    zed-editor
-
-    texliveFull
-
     ltex-ls-plus
-
-    flatpak
-    gnome-software
   ];
 
   programs.thunderbird = {

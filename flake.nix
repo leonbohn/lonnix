@@ -101,7 +101,7 @@
           specialArgs = {
             inherit inputs;
             # secrets = ./secrets;
-            nix2containerPkgs = nix2container.packages.aarch64-linux;
+            nix2container = nix2container.packages.aarch64-linux.nix2container;
           };
           modules = [
             ./host/common
@@ -110,6 +110,10 @@
             home-manager.nixosModules.home-manager
             agenix.nixosModules.default
             {
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                secrets = ./secrets;
+              };
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.lonne = import ./home/lonne;

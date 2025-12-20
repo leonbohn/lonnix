@@ -37,27 +37,29 @@
     binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 
+  systemd.network.enable = true;
+  systemd.network.networks."10-wan" = {
+    matchConfig.Name = "enp34s0";
+    address = [
+      "192.168.178.61/24"
+    ];
+    routes = [
+      { Gateway = "192.168.178.1"; }
+    ];
+  };
+
   networking = {
+    useNetworkd = true;
+    dhcpcd.enable = false;
+
     hostName = "lonnix-pc";
-    interfaces.enp34s0 = {
-      ipv4.addresses = [
-        {
-          address = "192.168.178.61";
-          prefixLength = 24;
-        }
-      ];
-    };
     defaultGateway = {
       address = "192.168.178.1";
       interface = "enp34s0";
     };
     nameservers = [
       "192.168.178.1"
-      "9.9.9.9"
-      "1.1.1.1"
     ];
-
-    networkmanager.enable = true;
   };
 
   # Set your time zone.
@@ -205,6 +207,19 @@
     comma
     vlc
 
+    flatpak
+    gnome-software
+
+    spotify-player
+    signal-desktop
+
+    mattermost-desktop
+
+    vscode
+    zed-editor
+
+    texliveFull
+
     inkscape
     inkscape-with-extensions
 
@@ -235,6 +250,7 @@
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
+    wants = [ "systemd-networkd.service" ];
     path = [ pkgs.flatpak ];
     script = ''
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

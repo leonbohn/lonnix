@@ -63,6 +63,7 @@
       alias lg='lazygit'
       alias ls='eza'
       alias l='eza -a'
+      alias buildpi='nix run nixpkgs#nixos-generators -- -f sd-aarch64 --flake .#lonnix-pi --system aarch64-linux -o ./pi.sd'
     '';
   };
 
