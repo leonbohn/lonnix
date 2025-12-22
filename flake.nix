@@ -71,6 +71,15 @@
         formatting = treefmtEval.${system}.config.build.check self;
       });
 
+      config.formatConfigs = {
+        sd-aarch64 =
+          { lib, ... }:
+          {
+            sdImage.compressImage = false;
+            fileExtension = lib.mkForce ".img*";
+          };
+      };
+
       nixosConfigurations = {
         "lonnix-pc" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";

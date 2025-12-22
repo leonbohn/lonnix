@@ -10,20 +10,6 @@
   lib,
   ...
 }:
-
-let
-  zfsCompatibleKernelPackages = lib.filterAttrs (
-    name: kernelPackages:
-    (builtins.match "linux_[0-9]+_[0-9]+" name) != null
-    && (builtins.tryEval kernelPackages).success
-    && (!kernelPackages.${config.boot.zfs.package.kernelModuleAttribute}.meta.broken)
-  ) pkgs.linuxKernel.packages;
-  latestKernelPackage = lib.last (
-    lib.sort (a: b: (lib.versionOlder a.kernel.version b.kernel.version)) (
-      builtins.attrValues zfsCompatibleKernelPackages
-    )
-  );
-in
 {
   imports = [
     # Include the results of the hardware scan.
@@ -38,41 +24,37 @@ in
     };
   };
 
-  # Use the extlinux boot loader. (NixOS wants to enable GRUB by default)
-  boot.loader.grub.enable = false;
-  # Enables the generation of /boot/extlinux/extlinux.conf
-  boot.loader.generic-extlinux-compatible.enable = true;
+  systemd.network.enable = true;
+  systemd.network.networks."10-wan" = {
+    matchConfig.Name = "end0";
+    address = [
+      "192.168.178.71/24"
+    ];
+    routes = [
+      { Gateway = "192.168.178.1"; }
+    ];
+  };
 
-  # Use latest kernel that supports zfs
-  boot.kernelPackages = latestKernelPackage;
-
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking = {
+    useNetworkd = true;
+    dhcpcd.enable = false;
+
     hostName = "lonnix-pi";
-    interfaces.end0 = {
-      ipv4.addresses = [
-        {
-          address = "192.168.178.10";
-          prefixLength = 24;
-        }
-      ];
-    };
     defaultGateway = {
       address = "192.168.178.1";
       interface = "end0";
     };
     nameservers = [
       "192.168.178.1"
-      "9.9.9.9"
-      "1.1.1.1"
     ];
   };
 
   users.users.lonne = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
-    hashedPassword = "$y$j9T$HWQfwzC75rr3cVjutfsjK/$4DFRUh0UH4P48t2hV109K0.uodpoY3q0umtSCs5nxI/";
+    hashedPassword = "$y$j9T$cKkgxZnGShRqC/VkOXPmZ1$0v4U3F98w9zzMYaHd1K0pGXzFnwONB/x9CexPYkmjU1";
   };
+
   programs.fish.enable = true;
   users.defaultUserShell = pkgs.fish;
 
@@ -157,6 +139,6 @@ in
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.05"; # Did you read the comment?
+  system.stateVersion = "25.11"; # Did you read the comment?
 
 }

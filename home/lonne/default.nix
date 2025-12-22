@@ -15,6 +15,7 @@
     ./mail.nix
     ./cal.nix
     ./helix.nix
+    ./git.nix
     # ./mozilla.nix
     # If you want to use modules your own flake exports (from modules/home-manager):
     # outputs.homeManagerModules.example
@@ -33,11 +34,7 @@
   };
 
   home.packages = with pkgs; [
-    nil # language server for nix
-    nixfmt-classic
-    nixd
-
-    ltex-ls-plus
+    fish
   ];
 
   programs.thunderbird = {
@@ -53,20 +50,6 @@
 
   # Enable home-manager and git
   programs.home-manager.enable = true;
-
-  programs.git = {
-    enable = true;
-    settings = {
-      user = {
-        name = "León Bohn";
-        email = "bohn@lics.rwth-aachen.de";
-      };
-    };
-  };
-  programs.delta = {
-    enable = true;
-    enableGitIntegration = true;
-  };
 
   programs.kitty = {
     enable = true;

@@ -16,6 +16,9 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.home-manager.nixosModules.home-manager
+
+    # we want the desktop to be a runner
+    ../runner.nix
   ];
 
   home-manager = {
@@ -81,14 +84,14 @@
     LC_TIME = "de_DE.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
   # Enable the GNOME Desktop Environment.
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
   services.gnome.gnome-browser-connector.enable = true;
   services.desktopManager.cosmic.enable = true;
+
+  # Enable the X11 windowing system.
+  services.xserver.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -175,22 +178,18 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    usbutils
-    eza
-    xz
-    zip
-    unzip
-    p7zip
-    tree
-    which
-    gnupg
-    nix-output-monitor
-    zola
-    just
-    bottom
+    clang
+    rustc
+    cargo
+    cargo-binstall
+    # rewrite of SQLite in Rust
+    turso-cli
+
     zotero
     obsidian
     nextcloud-client
+
+    ungoogled-chromium
 
     gnome-tweaks
     gnomeExtensions.home-assistant-extension
@@ -232,6 +231,12 @@
     # androidenv.androidPkgs.platform-tools
 
     openconnect
+
+    nil # language server for nix
+    nixfmt-classic
+    nixd
+
+    ltex-ls-plus
   ];
 
   environment.variables.EDITOR = "hx";

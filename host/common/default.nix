@@ -7,7 +7,6 @@
 }:
 {
   imports = [
-    ./runner.nix
     ./ssh.nix
   ];
 
@@ -21,6 +20,11 @@
 
   users.groups.remotebuild = { };
   nix.settings.trusted-users = [ "remotebuild" ];
+  nix.extraOptions = ''
+    keep-outputs = true
+    keep-derivations = true
+    experimental-features = nix-command flakes
+  '';
 
   environment.systemPackages =
     with pkgs;
@@ -30,25 +34,27 @@
       jq
       starship
 
-      skopeo # to obtain information on docker containers from remote
+      usbutils
+      eza
+      xz
+      zip
+      unzip
+      p7zip
+      tree
+      which
+      gnupg
+      nix-output-monitor
+      just
+      bottom
 
       zellij
 
-      eza
-      bottom
       lazygit
       git
       wget
       ripgrep
       curl
 
-      clang
-      rustc
-      cargo
-      cargo-binstall
-
-      # rewrite of SQLite in Rust
-      turso-cli
     ]
     ++ [ inputs.agenix.packages.x86_64-linux.default ];
 
