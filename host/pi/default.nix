@@ -14,6 +14,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ../minimal.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
@@ -77,20 +78,6 @@
     LC_PAPER = "de_DE.UTF-8";
     LC_TELEPHONE = "de_DE.UTF-8";
     LC_TIME = "de_DE.UTF-8";
-  };
-
-  # Install firefox.
-  programs.firefox = {
-    enable = true;
-    policies.SearchEngines.Add = [
-      {
-        # example numero uno
-        Name = "NixOS Search";
-        URLTemplate = "https://search.nixos.org/packages?channel=25.05&query={searchTerms}";
-        Method = "GET"; # "POST"
-        IconURL = "https://search.nixos.org/favicon.png";
-      }
-    ];
   };
 
   programs.nh = {
