@@ -133,7 +133,18 @@
           };
           modules = [
             agenix.homeManagerModules.default
-
+            ./home/default.nix
+          ];
+        };
+        "lonne@lonnix-pi" = home-manager.lib.homeManagerConfiguration {
+          # inherit pkgs;
+          pkgs = nixpkgs.legacyPackages.aarch64-linux; # Home-manager requires 'pkgs' instance
+          extraSpecialArgs = {
+            inherit self inputs;
+            res = ./secrets;
+          };
+          modules = [
+            agenix.homeManagerModules.default
             ./home/default.nix
           ];
         };

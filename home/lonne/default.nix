@@ -101,8 +101,8 @@
       forgejo.file = secrets + /forgejo.age;
       atuinsession.file = secrets + /atuinsession.age;
     };
-    # identityPaths = [ "${config.home.homeDirectory}/.ssh" ];
-    # secretsDir = "${config.home.homeDirectory}/.agenix";
+    identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
+    secretsDir = "${config.home.homeDirectory}/.secrets";
   };
 
 }
