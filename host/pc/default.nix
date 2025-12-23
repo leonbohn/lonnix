@@ -1,151 +1,48 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+{ pkgs, config, ... }: {
+  imports = [ ./hardware-configuration.nix ../runner.nix ];
 
-{
-  config,
-  pkgs,
-  lib,
-  inputs,
-  outputs,
-  ...
-}:
-
-{
-  imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-    inputs.home-manager.nixosModules.home-manager
-
-    # we want the desktop to be a runner
-    ../runner.nix
-  ];
-
-  home-manager = {
-    extraSpecialArgs = { inherit inputs outputs; };
-    users = {
-      lonne = import ../../home/lonne;
-    };
-  };
-
-  # Bootloader.
+  # Bootloader & Emulation
   boot = {
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_latest;
+    binfmt.emulatedSystems = [ "aarch64-linux" ];
     initrd.luks.devices."luks-d5e498c1-4a23-476b-ac9c-61297e991ae2".device =
       "/dev/disk/by-uuid/d5e498c1-4a23-476b-ac9c-61297e991ae2";
-    binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
-
+  # Networking
+  networking.hostName = "lonnix-pc";
   systemd.network.enable = true;
   systemd.network.networks."10-wan" = {
     matchConfig.Name = "enp34s0";
-    address = [
-      "192.168.178.61/24"
-    ];
-    routes = [
-      { Gateway = "192.168.178.1"; }
-    ];
+    address = [ "192.168.178.61/24" ];
+    routes = [{ Gateway = "192.168.178.1"; }];
   };
 
-  networking = {
-    useNetworkd = true;
-    dhcpcd.enable = false;
-
-    hostName = "lonnix-pc";
-    defaultGateway = {
-      address = "192.168.178.1";
-      interface = "enp34s0";
-    };
-    nameservers = [
-      "192.168.178.1"
-    ];
-  };
-
-  # Set your time zone.
-  time.timeZone = "Europe/Berlin";
-
-  # Select internationalisation properties.
-  # i18n.defaultLocale = "de_DE.UTF-8";
-  i18n.defaultLocale = "en_GB.UTF-8";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_DE.UTF-8";
-    LC_IDENTIFICATION = "de_DE.UTF-8";
-    LC_MEASUREMENT = "de_DE.UTF-8";
-    LC_MONETARY = "de_DE.UTF-8";
-    LC_NAME = "de_DE.UTF-8";
-    LC_NUMERIC = "de_DE.UTF-8";
-    LC_PAPER = "de_DE.UTF-8";
-    LC_TELEPHONE = "de_DE.UTF-8";
-    LC_TIME = "de_DE.UTF-8";
-  };
-
-  # Enable the GNOME Desktop Environment.
+  # GUI & Services
+  services.xserver.enable = true;
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
-  services.gnome.gnome-browser-connector.enable = true;
   services.desktopManager.cosmic.enable = true;
-
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "altgr-intl";
-  };
-
-  # Enable CUPS to print documents.
-  services.printing.enable = false;
-
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
-    alsa.support32Bit = true;
     pulse.enable = true;
   };
-
-  # Define a user account.
-  users.users.lonne = {
-    isNormalUser = true;
-    description = "lonne";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "adbusers"
-      "kvm"
-    ];
-  };
-
-  programs.fish.enable = true;
-  users.defaultUserShell = pkgs.fish;
 
   # Install firefox.
   programs.firefox = {
     enable = true;
-    policies.SearchEngines.Add = [
-      {
-        # example numero uno
-        Name = "NixOS Search";
-        URLTemplate = "https://search.nixos.org/packages?channel=25.11&query={searchTerms}";
-        Method = "GET"; # "POST"
-        IconURL = "https://search.nixos.org/favicon.png";
-      }
-    ];
-  };
-
-  programs.nh = {
-    enable = true;
-    clean.enable = true;
-    clean.extraArgs = "--keep-since 4d --keep 3";
-    flake = "/home/lonne/lonnix/";
+    policies.SearchEngines.Add = [{
+      # example numero uno
+      Name = "NixOS Search";
+      URLTemplate =
+        "https://search.nixos.org/packages?channel=25.11&query={searchTerms}";
+      Method = "GET"; # "POST"
+      IconURL = "https://search.nixos.org/favicon.png";
+    }];
   };
 
   programs.appimage = {
@@ -158,21 +55,6 @@
     remotePlay.openFirewall = false;
     dedicatedServer.openFirewall = false;
     localNetworkGameTransfers.openFirewall = true;
-  };
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowUnfreePredicate = _: true;
-  nixpkgs.config.android_sdk.accept_license = true;
-
-  nix = {
-    settings = {
-      experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-      extra-platforms = config.boot.binfmt.emulatedSystems;
-    };
   };
 
   # List packages installed in system profile. To search, run:
@@ -239,8 +121,6 @@
     ltex-ls-plus
   ];
 
-  environment.variables.EDITOR = "hx";
-
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -268,9 +148,7 @@
   # };
 
   services.pcscd.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-  };
+  programs.gnupg.agent = { enable = true; };
 
   programs.adb.enable = true;
 

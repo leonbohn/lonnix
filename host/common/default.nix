@@ -1,62 +1,96 @@
-{
-  inputs,
-  config,
-  pkgs,
-  secrets,
-  ...
-}:
-{
-  imports = [
-    ./ssh.nix
-  ];
+{ inputs, pkgs, age, nickName, ... }: {
+  imports = [ ./ssh.nix ];
+
+  # --- SYSTEM SETTINGS ---
+  time.timeZone = "Europe/Berlin";
+  i18n.defaultLocale = "en_GB.UTF-8";
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "de_DE.UTF-8";
+    LC_IDENTIFICATION = "de_DE.UTF-8";
+    LC_MEASUREMENT = "de_DE.UTF-8";
+    LC_MONETARY = "de_DE.UTF-8";
+    LC_NAME = "de_DE.UTF-8";
+    LC_NUMERIC = "de_DE.UTF-8";
+    LC_PAPER = "de_DE.UTF-8";
+    LC_TELEPHONE = "de_DE.UTF-8";
+    LC_TIME = "de_DE.UTF-8";
+  };
+
+  # --- NIX SETTINGS ---
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    trusted-users = [ "lonne" "remotebuild" ];
+  };
+  nix.extraOptions = ''
+    keep-outputs = true
+    keep-derivations = true
+  '';
+
+  # --- USERS ---
+  users.users.lonne = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" "networkmanager" ];
+    shell = pkgs.fish;
+    # Included your hashed password from the Pi config as default
+    hashedPassword =
+      "$y$j9T$cKkgxZnGShRqC/VkOXPmZ1$0v4U3F98w9zzMYaHd1K0pGXzFnwONB/x9CexPYkmjU1";
+  };
 
   users.users.remotebuild = {
     isSystemUser = true;
     group = "remotebuild";
     useDefaultShell = true;
+  };
+  users.groups.remotebuild = { };
 
-    # openssh.authorizedKeys.keyFiles =  [ ];
+  # --- SECRETS (Agenix) ---
+  age.identityPaths = [ "/home/lonne/.ssh/id_ed25519" ];
+  age.secrets.forgejo = {
+    file = ../../secrets/forgejo.age;
+    owner = "lonne"; # Ensures user can read the decrypted secret
   };
 
-  users.groups.remotebuild = { };
-  nix.settings.trusted-users = [ "remotebuild" ];
-  nix.extraOptions = ''
-    keep-outputs = true
-    keep-derivations = true
-    experimental-features = nix-command flakes
-  '';
+  # --- PROGRAMS ---
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 4d --keep 3";
+    flake = "/home/lonne/lonnix/";
+  };
 
-  environment.systemPackages =
-    with pkgs;
-    [
-      fish
-      tmux
-      jq
-      starship
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 
-      usbutils
-      eza
-      xz
-      zip
-      unzip
-      p7zip
-      tree
-      which
-      gnupg
-      nix-output-monitor
-      just
-      bottom
+  environment.variables.EDITOR = "hx";
 
-      zellij
-
-      lazygit
-      git
-      wget
-      ripgrep
-      curl
-
-    ]
-    ++ [ inputs.agenix.packages.x86_64-linux.default ];
+  environment.systemPackages = with pkgs; [
+    fish
+    tmux
+    jq
+    starship
+    eza
+    bottom
+    lazygit
+    helix
+    git
+    wget
+    ripgrep
+    curl
+    usbutils
+    xz
+    zip
+    unzip
+    p7zip
+    tree
+    which
+    gnupg
+    nix-output-monitor
+    just
+    zellij
+    inputs.agenix.packages.${stdenv.hostPlatform.system}.default # Fixed architecture-specific agenix
+  ];
 
   programs.fish = {
     enable = true;
@@ -72,19 +106,15 @@
       alias buildpi='nix run nixpkgs#nixos-generators -- -f sd-aarch64 --flake .#lonnix-pi --system aarch64-linux -o ./pi.sd'
     '';
   };
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
-
   programs.starship = {
     enable = true;
     settings = {
       add_newline = true;
       command_timeout = 1300;
       scan_timeout = 50;
-      format = "$all$nix_shell$nodejs$lua$golang$rust$php$git_branch$git_commit$git_state$git_status\n$username$hostname$directory";
+      format = ''
+        $all$nix_shell$nodejs$lua$golang$rust$php$git_branch$git_commit$git_state$git_status
+        $username$hostname$directory'';
       character = {
         success_symbol = "[☑](bold green) ";
         error_symbol = "[X](bold red) ";
@@ -97,18 +127,4 @@
     enableFishIntegration = true;
   };
 
-  age.identityPaths = [ "/home/lonne/.ssh/id_ed25519" ];
-  age.secrets.forgejo.file = ../../secrets/forgejo.age;
-
-  # age = {
-  #   secrets = {
-  #     mail.file = secrets + /mail.age;
-  #     radicale.file = secrets + /radicale.age;
-  #     atuinkey.file = secrets + /atuinkey.age;
-  #     forgejo.file = secrets + /forgejo.age;
-  #     atuinsession.file = secrets + /atuinsession.age;
-  #   };
-  #   identityPaths = [ "/home/lonne/.ssh" ];
-  #   # secretsDir = "${config.home.homeDirectory}/.agenix";
-  # };
 }
