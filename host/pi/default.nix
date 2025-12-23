@@ -1,5 +1,5 @@
 { pkgs, ... }: {
-  imports = [ ./hardware-configuration.nix ];
+  imports = [ ./hardware-configuration.nix ../minimal.nix ];
 
   networking.hostName = "lonnix-pi";
 
