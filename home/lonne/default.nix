@@ -1,6 +1,15 @@
 # This is your home-manager configuration file
 # Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
-{ inputs, outputs, lib, secrets, config, pkgs, ... }: {
+{
+  inputs,
+  outputs,
+  lib,
+  secrets,
+  config,
+  pkgs,
+  ...
+}:
+{
   # You can import other home-manager modules here
   imports = [
     ./mail.nix
@@ -28,7 +37,9 @@
 
   programs.thunderbird = {
     enable = true;
-    profiles."leon" = { isDefault = true; };
+    profiles."leon" = {
+      isDefault = true;
+    };
   };
 
   # Add stuff for your user as you see fit:
@@ -70,8 +81,18 @@
 
     matchBlocks."*" = { };
 
-    extraConfig =
-      "\n      Host *\n        AddKeysToAgent yes\n      Host pi 192.168.178.71\n        HostName 192.168.178.71\n        IdentityFile ~/.ssh/pi\n        User leon\n      Host vps 152.53.1.124\n        HostName 152.53.1.124\n        IdentityFile ~/.ssh/vps\n        User leon\n";
+    extraConfig = ''
+      Host *
+        AddKeysToAgent yes
+      Host pi 192.168.178.71
+        HostName 192.168.178.71
+        IdentityFile ~/.ssh/pi
+        User lonne
+      Host vps 152.53.1.124
+        HostName 152.53.1.124
+        IdentityFile ~/.ssh/vps
+        User leon
+    '';
   };
 
   programs.gpg.enable = true;
