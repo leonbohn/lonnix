@@ -97,5 +97,9 @@
         lonnix-pc = mkNixos "pc" "x86_64-linux";
         lonnix-pi = mkNixos "pi" "aarch64-linux";
       };
+
+      homeConfigurations."lonne" = home-manager.lib.homeManagerConfiguration {
+        modules = [ agenix.homeManagerModules.default ];
+      };
     };
 }

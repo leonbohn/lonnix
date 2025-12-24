@@ -1,17 +1,10 @@
 # This is your home-manager configuration file
 # Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
-{
-  inputs,
-  outputs,
-  lib,
-  secrets,
-  config,
-  pkgs,
-  ...
-}:
-{
+{ inputs, outputs, lib, secrets, config, pkgs, ... }: {
   # You can import other home-manager modules here
   imports = [
+    inputs.agenix.homeManagerModules.default
+
     ./mail.nix
     ./cal.nix
     ./helix.nix
@@ -25,7 +18,6 @@
 
     # You can also split up your configuration and import pieces of it here:
     # ./nvim.nix
-    inputs.agenix.homeManagerModules.default
   ];
 
   home = {
@@ -37,9 +29,7 @@
 
   programs.thunderbird = {
     enable = true;
-    profiles."leon" = {
-      isDefault = true;
-    };
+    profiles."leon" = { isDefault = true; };
   };
 
   # Add stuff for your user as you see fit:
@@ -111,7 +101,6 @@
       atuinsession.file = secrets + /atuinsession.age;
     };
     identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
-    secretsDir = "${config.home.homeDirectory}/.secrets";
   };
 
 }
