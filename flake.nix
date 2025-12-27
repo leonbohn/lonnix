@@ -26,15 +26,28 @@
     nix2container.url = "github:nlewo/nix2container";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nixos-hardware
-    , agenix, nix2container, ... }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-unstable,
+      home-manager,
+      nixos-hardware,
+      agenix,
+      nix2container,
+      ...
+    }@inputs:
     let
       inherit (self) outputs;
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
 
       # Helper for treefmt
-      treefmtEval = forAllSystems (system:
+      treefmtEval = forAllSystems (
+        system:
         inputs.treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} {
           projectRootFile = "flake.nix";
           programs = {
@@ -43,10 +56,12 @@
             shellcheck.enable = true;
             shfmt.enable = true;
           };
-        });
+        }
+      );
 
       # Helper function for NixOS configurations
-      mkNixos = nickName: system:
+      mkNixos =
+        nickName: system:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
@@ -76,22 +91,20 @@
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.users.lonne = import ./home/lonne;
               home-manager.extraSpecialArgs = {
                 inherit inputs nickName;
+
                 secrets = ./secrets;
               };
+              home-manager.users.lonne = import ./home/lonne;
             }
             # Add hardware-specific tweaks for the Pi
-            (if nickName == "pi" then
-              nixos-hardware.nixosModules.raspberry-pi-4
-            else
-              { })
+            (if nickName == "pi" then nixos-hardware.nixosModules.raspberry-pi-4 else { })
           ];
         };
-    in {
-      formatter =
-        forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
+    in
+    {
+      formatter = forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
 
       nixosConfigurations = {
         lonnix-pc = mkNixos "pc" "x86_64-linux";
