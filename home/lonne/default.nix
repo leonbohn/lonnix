@@ -104,7 +104,10 @@
   home.stateVersion = "25.11";
 
   age = {
-    identityPaths = [ "/home/lonne/.ssh/id_ed25519" ];
+    identityPaths = [
+      "/home/lonne/.ssh/id_ed25519"
+      "/etc/ssh/ssh_host_ed25519_key"
+    ];
 
     secrets = {
       mail.file = secrets + /mail.age;
