@@ -1,5 +1,11 @@
-{ pkgs, ... }: {
-  imports = [ ./hardware-configuration.nix ];
+# lonnix-pi configuration file
+{ pkgs, ... }:
+{
+  imports = [
+    ./hardware-configuration.nix
+    ./hass.nix
+    ./jellyfin.nix
+  ];
 
   networking.hostName = "lonnix-pi";
 
@@ -8,7 +14,7 @@
   systemd.network.networks."10-wan" = {
     matchConfig.Name = "end0";
     address = [ "192.168.178.71/24" ];
-    routes = [{ Gateway = "192.168.178.1"; }];
+    routes = [ { Gateway = "192.168.178.1"; } ];
   };
 
   networking = {
@@ -21,7 +27,11 @@
     nameservers = [ "192.168.178.1" ];
   };
 
-  environment.systemPackages = with pkgs; [ rustc cargo cargo-binstall ];
+  environment.systemPackages = with pkgs; [
+    rustc
+    cargo
+    cargo-binstall
+  ];
 
   system.stateVersion = "25.11";
 }

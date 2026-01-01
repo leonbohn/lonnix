@@ -1,5 +1,10 @@
-{ pkgs, config, ... }: {
-  imports = [ ./hardware-configuration.nix ../runner.nix ];
+# lonnix-pc configuration file
+{ pkgs, config, ... }:
+{
+  imports = [
+    ./hardware-configuration.nix
+    ../runner.nix
+  ];
 
   # Bootloader & Emulation
   boot = {
@@ -18,7 +23,7 @@
   systemd.network.networks."10-wan" = {
     matchConfig.Name = "enp34s0";
     address = [ "192.168.178.61/24" ];
-    routes = [{ Gateway = "192.168.178.1"; }];
+    routes = [ { Gateway = "192.168.178.1"; } ];
   };
 
   # GUI & Services
@@ -35,14 +40,15 @@
   # Install firefox.
   programs.firefox = {
     enable = true;
-    policies.SearchEngines.Add = [{
-      # example numero uno
-      Name = "NixOS Search";
-      URLTemplate =
-        "https://search.nixos.org/packages?channel=25.11&query={searchTerms}";
-      Method = "GET"; # "POST"
-      IconURL = "https://search.nixos.org/favicon.png";
-    }];
+    policies.SearchEngines.Add = [
+      {
+        # example numero uno
+        Name = "NixOS Search";
+        URLTemplate = "https://search.nixos.org/packages?channel=25.11&query={searchTerms}";
+        Method = "GET"; # "POST"
+        IconURL = "https://search.nixos.org/favicon.png";
+      }
+    ];
   };
 
   programs.appimage = {
@@ -148,7 +154,9 @@
   # };
 
   services.pcscd.enable = true;
-  programs.gnupg.agent = { enable = true; };
+  programs.gnupg.agent = {
+    enable = true;
+  };
 
   programs.adb.enable = true;
 

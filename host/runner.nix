@@ -58,22 +58,6 @@ let
   };
 in
 {
-  virtualisation.containers.enable = true;
-  virtualisation = {
-    podman = {
-      enable = true;
-      # dockerCompat = true;
-      defaultNetwork.settings.dns_enabled = true;
-    };
-  };
-
-  environment.systemPackages = with pkgs; [
-    dive
-    podman-tui
-    # docker-compose
-    podman-compose
-  ];
-
   # This systemd service ensures the image is loaded into Podman on boot
   systemd.services.load-fnnr = {
     description = "Load custom CI image '${fnnr.imageName}' into podman";

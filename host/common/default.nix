@@ -1,5 +1,16 @@
-{ inputs, pkgs, age, nickName, ... }: {
-  imports = [ ./ssh.nix ];
+{
+  inputs,
+  pkgs,
+  age,
+  nickName,
+  secrets,
+  ...
+}:
+{
+  imports = [
+    ./ssh.nix
+    ./podman.nix
+  ];
 
   # --- SYSTEM SETTINGS ---
   time.timeZone = "Europe/Berlin";
@@ -18,8 +29,14 @@
 
   # --- NIX SETTINGS ---
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
-    trusted-users = [ "lonne" "remotebuild" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    trusted-users = [
+      "lonne"
+      "remotebuild"
+    ];
   };
   nix.extraOptions = ''
     keep-outputs = true
@@ -29,11 +46,13 @@
   # --- USERS ---
   users.users.lonne = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+    ];
     shell = pkgs.fish;
     # Included your hashed password from the Pi config as default
-    hashedPassword =
-      "$y$j9T$cKkgxZnGShRqC/VkOXPmZ1$0v4U3F98w9zzMYaHd1K0pGXzFnwONB/x9CexPYkmjU1";
+    hashedPassword = "$y$j9T$cKkgxZnGShRqC/VkOXPmZ1$0v4U3F98w9zzMYaHd1K0pGXzFnwONB/x9CexPYkmjU1";
   };
 
   users.users.remotebuild = {
@@ -46,7 +65,7 @@
   # --- SECRETS (Agenix) ---
   age.identityPaths = [ "/home/lonne/.ssh/id_ed25519" ];
   age.secrets.forgejo = {
-    file = ../../secrets/forgejo.age;
+    file = secrets + /forgejo.age;
     owner = "lonne"; # Ensures user can read the decrypted secret
   };
 

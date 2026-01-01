@@ -104,14 +104,18 @@
   home.stateVersion = "25.11";
 
   age = {
+    identityPaths = [ "/home/lonne/.ssh/id_ed25519" ];
+
     secrets = {
       mail.file = secrets + /mail.age;
       radicale.file = secrets + /radicale.age;
-      atuinkey.file = secrets + /atuinkey.age;
-      forgejo.file = secrets + /forgejo.age;
-      atuinsession.file = secrets + /atuinsession.age;
+      atuinkey = {
+        file = secrets + /atuinkey.age;
+      };
+      atuinsession = {
+        file = secrets + /atuinsession.age;
+      };
     };
-    identityPaths = [ "~/.ssh/id_ed25519" ];
   };
 
 }
