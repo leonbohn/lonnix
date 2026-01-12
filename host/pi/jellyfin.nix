@@ -6,6 +6,7 @@
 {
   services.jellyfin = {
     enable = true;
+    openFirewall = true;
     user = "lonne";
   };
   environment.systemPackages = [

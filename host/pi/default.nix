@@ -28,9 +28,7 @@
   };
 
   environment.systemPackages = with pkgs; [
-    rustc
-    cargo
-    cargo-binstall
+    cryptsetup
   ];
 
   system.stateVersion = "25.11";
