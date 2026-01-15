@@ -30,7 +30,7 @@
     "d /media/Documents 0750 paperless paperless -"
   ];
 
-  systemd.services.paperless-scheduler.after = [ "media-Documents.mount" ];
-  systemd.services.paperless-consumer.after = [ "media-Documents.mount" ];
-  systemd.services.paperless-webserver.after = [ "media-Documents.mount" ];
+  systemd.services.paperless-scheduler.after = [ "media.mount" ];
+  systemd.services.paperless-consumer.after = [ "media.mount" ];
+  systemd.services.paperless-webserver.after = [ "media.mount" ];
 }
