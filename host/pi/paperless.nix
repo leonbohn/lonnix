@@ -7,6 +7,7 @@
   services.paperless = {
     enable = true;
     passwordFile = config.sops.secrets."paperless_admin_password".path;
+    dataDir = "/media/Documents";
 
     settings = {
       PAPERLESS_ADMIN_USER = "lonne";
@@ -24,4 +25,12 @@
       };
     };
   };
+
+  systemd.tmpfiles.rules = [
+    "d /media/Documents 0750 paperless paperless -"
+  ];
+
+  systemd.services.paperless-scheduler.after = [ "media-Documents.mount" ];
+  systemd.services.paperless-consumer.after = [ "media-Documents.mount" ];
+  systemd.services.paperless-webserver.after = [ "media-Documents.mount" ];
 }
