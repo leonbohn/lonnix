@@ -8,6 +8,7 @@
 }:
 {
   imports = [
+    ./sops.nix
     ./ssh.nix
     ./podman.nix
     ./tailscale.nix
@@ -91,6 +92,8 @@
 
   environment.systemPackages = with pkgs; [
     sops
+    ssh-to-age
+
     fish
     tmux
     jq

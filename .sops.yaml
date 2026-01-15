@@ -2,7 +2,7 @@ keys:
   - &lonnix_pc age1gzhlc3juamw8g8l6van2smk30473jzrprl97uc5ydl0j0mulaywqtz6etv
   - &lonnix_pi age1gd08l9xcfqmh747qeq5cvhm78py3th66duqullfrf8f832r0z42qn6gz2e
 creation_rules:
-  - path_regex: sopsrets/[^/]+\.(yaml|json|env|ini)$
+  - path_regex: secrets\.yaml$
     key_groups:
       - age:
         - *lonnix_pc

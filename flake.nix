@@ -87,6 +87,7 @@
             };
 
             secrets = ./secrets;
+            sopsrets = ./secrets.yaml;
           };
           modules = [
             {
