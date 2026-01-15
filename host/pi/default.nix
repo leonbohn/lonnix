@@ -3,6 +3,8 @@
 {
   imports = [
     ./hardware-configuration.nix
+
+    ./paperless.nix
     ./hass.nix
     ./jellyfin.nix
   ];

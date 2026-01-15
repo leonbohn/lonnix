@@ -10,6 +10,7 @@
   imports = [
     ./ssh.nix
     ./podman.nix
+    ./tailscale.nix
   ];
 
   # --- SYSTEM SETTINGS ---
@@ -42,6 +43,10 @@
     keep-outputs = true
     keep-derivations = true
   '';
+  nix.optimise = {
+    automatic = true;
+    dates = [ "weekly" ];
+  };
 
   # --- USERS ---
   users.users.lonne = {
@@ -85,6 +90,7 @@
   environment.variables.EDITOR = "hx";
 
   environment.systemPackages = with pkgs; [
+    sops
     fish
     tmux
     jq
@@ -101,6 +107,7 @@
     xz
     zip
     unzip
+    unrar
     p7zip
     tree
     which

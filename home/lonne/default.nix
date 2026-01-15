@@ -14,6 +14,8 @@
   imports = [
     inputs.agenix.homeManagerModules.default
 
+    ./ssh.nix
+
     ./mail.nix
     ./cal.nix
     ./helix.nix
@@ -34,7 +36,14 @@
     homeDirectory = lib.mkForce "/home/lonne";
   };
 
-  home.packages = with pkgs; [ fish ];
+  home.packages = with pkgs; [
+    fish
+    jq
+    fzf
+    eza
+    bat
+    fd
+  ];
 
   programs.thunderbird = {
     enable = true;
@@ -74,26 +83,6 @@
       session_path = config.age.secrets.atuinsession.path;
       key_path = config.age.secrets.atuinkey.path;
     };
-  };
-
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
-
-    matchBlocks."*" = { };
-
-    extraConfig = ''
-      Host *
-        AddKeysToAgent yes
-      Host pi 192.168.178.71
-        HostName 192.168.178.71
-        IdentityFile ~/.ssh/pi
-        User lonne
-      Host vps 152.53.1.124
-        HostName 152.53.1.124
-        IdentityFile ~/.ssh/vps
-        User leon
-    '';
   };
 
   programs.gpg.enable = true;
