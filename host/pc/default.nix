@@ -1,5 +1,5 @@
 # lonnix-pc configuration file
-{ pkgs, config, ... }:
+{ pkgs, ... }:
 {
   imports = [
     ./hardware-configuration.nix
@@ -21,7 +21,6 @@
       "/dev/disk/by-uuid/d5e498c1-4a23-476b-ac9c-61297e991ae2";
   };
   # Networking
-  networking.hostName = "lonnix-pc";
   systemd.network.enable = true;
   systemd.network.networks."10-wan" = {
     matchConfig.Name = "enp34s0";

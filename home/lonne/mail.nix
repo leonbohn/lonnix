@@ -1,100 +1,103 @@
-{ pkgs, config, res, ... }: {
-  accounts.email.accounts = let
-    passwordCommand = account:
-      "${pkgs.jq}/bin/jq -r .${account} ${config.age.secrets.mail.path}";
-    refreshMinutes = 3;
-  in {
-    "lics@rwth" = {
-      primary = true;
-      address = "bohn@lics.rwth-aachen.de";
-      realName = "León Bohn";
+{
+  pkgs,
+  ...
+}:
+{
+  accounts.email.accounts =
+    let
+      refreshMinutes = 3;
+    in
+    {
+      "lics@rwth" = {
+        primary = true;
+        address = "bohn@lics.rwth-aachen.de";
+        realName = "León Bohn";
 
-      thunderbird.enable = true;
-      aerc = {
-        enable = true;
-        extraAccounts = {
-          default = "INBOX";
-          check-mail = "${builtins.toString refreshMinutes}m";
-        };
-      };
-
-      userName = "lb084651@lics.rwth-aachen.de";
-      passwordCommand = passwordCommand "rwth";
-
-      imap = {
-        host = "mail.rwth-aachen.de";
-        port = 993;
-        tls.enable = true;
-      };
-      smtp = {
-        host = "mail.rwth-aachen.de";
-        port = 587;
-        tls = {
+        thunderbird.enable = true;
+        aerc = {
           enable = true;
-          useStartTls = true;
+          extraAccounts = {
+            default = "INBOX";
+            check-mail = "${builtins.toString refreshMinutes}m";
+          };
+        };
+
+        userName = "lb084651@lics.rwth-aachen.de";
+
+        imap = {
+          host = "mail.rwth-aachen.de";
+          port = 993;
+          tls.enable = true;
+        };
+        smtp = {
+          host = "mail.rwth-aachen.de";
+          port = 587;
+          tls = {
+            enable = true;
+            useStartTls = true;
+          };
         };
       };
-    };
-    "studi@rwth" = {
-      address = "leon.bohn@rwth-aachen.de";
-      realName = "León Bohn";
+      "studi@rwth" = {
+        address = "leon.bohn@rwth-aachen.de";
+        realName = "León Bohn";
 
-      thunderbird.enable = true;
-      aerc = {
-        enable = true;
-        extraAccounts = {
-          default = "INBOX";
-          check-mail = "${builtins.toString refreshMinutes}m";
-        };
-      };
-
-      userName = "lb084651@rwth-aachen.de";
-      passwordCommand = passwordCommand "rwth";
-
-      imap = {
-        host = "mail.rwth-aachen.de";
-        port = 993;
-        tls.enable = true;
-      };
-
-      smtp = {
-        host = "mail.rwth-aachen.de";
-        port = 587;
-        tls = {
+        thunderbird.enable = true;
+        aerc = {
           enable = true;
-          useStartTls = true;
+          extraAccounts = {
+            default = "INBOX";
+            check-mail = "${builtins.toString refreshMinutes}m";
+          };
+        };
+
+        userName = "lb084651@rwth-aachen.de";
+
+        imap = {
+          host = "mail.rwth-aachen.de";
+          port = 993;
+          tls.enable = true;
+        };
+
+        smtp = {
+          host = "mail.rwth-aachen.de";
+          port = 587;
+          tls = {
+            enable = true;
+            useStartTls = true;
+          };
+        };
+        # msmtp.enable = true;
+      };
+
+      "gmail" = {
+        address = "leoboh241293@gmail.com";
+        realName = "León Bohn";
+
+        aerc = {
+          enable = true;
+          extraAccounts = {
+            default = "INBOX";
+            check-mail = "${builtins.toString refreshMinutes}m";
+          };
+        };
+        thunderbird.enable = true;
+
+        userName = "leoboh241293@gmail.com";
+        imap = {
+          host = "imap.gmail.com";
+          port = 993;
+          tls.enable = true;
+        };
+        smtp = {
+          host = "smtp.gmail.com";
+          port = 587;
+          tls = {
+            enable = true;
+          };
         };
       };
-      # msmtp.enable = true;
     };
-
-    "gmail" = {
-      address = "leoboh241293@gmail.com";
-      realName = "León Bohn";
-
-      aerc = {
-        enable = true;
-        extraAccounts = {
-          default = "INBOX";
-          check-mail = "${builtins.toString refreshMinutes}m";
-        };
-      };
-      thunderbird.enable = true;
-
-      userName = "leoboh241293@gmail.com";
-      passwordCommand = passwordCommand "gmail";
-      imap = {
-        host = "imap.gmail.com";
-        port = 993;
-        tls.enable = true;
-      };
-      smtp = {
-        host = "smtp.gmail.com";
-        port = 587;
-        tls = { enable = true; };
-      };
-    };
-  };
   programs.aerc = {
     enable = true;
     extraConfig = {
@@ -162,7 +165,9 @@
         "q" = ":prompt 'Quit?' quit<Enter>";
       };
 
-      "messages:folder=Drafts" = { "<Enter>" = ":recall<Enter>"; };
+      "messages:folder=Drafts" = {
+        "<Enter>" = ":recall<Enter>";
+      };
 
       view = {
         "<C-j>" = ":next<Enter>";

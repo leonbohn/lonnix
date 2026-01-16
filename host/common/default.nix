@@ -1,9 +1,8 @@
 {
-  inputs,
   pkgs,
-  age,
-  nickName,
-  secrets,
+  user,
+  pref,
+  nick,
   ...
 }:
 {
@@ -13,6 +12,8 @@
     ./podman.nix
     ./tailscale.nix
   ];
+
+  networking.hostName = "${pref}-${nick}";
 
   # --- SYSTEM SETTINGS ---
   time.timeZone = "Europe/Berlin";
@@ -36,7 +37,7 @@
       "flakes"
     ];
     trusted-users = [
-      "lonne"
+      user
       "remotebuild"
     ];
   };
@@ -50,7 +51,7 @@
   };
 
   # --- USERS ---
-  users.users.lonne = {
+  users.users.${user} = {
     isNormalUser = true;
     extraGroups = [
       "wheel"
@@ -68,19 +69,12 @@
   };
   users.groups.remotebuild = { };
 
-  # --- SECRETS (Agenix) ---
-  age.identityPaths = [ "/home/lonne/.ssh/id_ed25519" ];
-  age.secrets.forgejo = {
-    file = secrets + /forgejo.age;
-    owner = "lonne"; # Ensures user can read the decrypted secret
-  };
-
   # --- PROGRAMS ---
   programs.nh = {
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 4d --keep 3";
-    flake = "/home/lonne/lonnix/";
+    flake = "/home/${user}/${pref}/";
   };
 
   programs.direnv = {
@@ -118,7 +112,6 @@
     nix-output-monitor
     just
     zellij
-    inputs.agenix.packages.${stdenv.hostPlatform.system}.default # Fixed architecture-specific agenix
   ];
 
   programs.fish = {
@@ -132,7 +125,7 @@
       alias lg='lazygit'
       alias ls='eza'
       alias l='eza -a'
-      alias buildpi='nix run nixpkgs#nixos-generators -- -f sd-aarch64 --flake .#lonnix-pi --system aarch64-linux -o ./pi.sd'
+      alias buildpi='nix run nixpkgs#nixos-generators -- -f sd-aarch64 --flake .#${pref}-pi --system aarch64-linux -o ./pi.sd'
     '';
   };
   programs.starship = {

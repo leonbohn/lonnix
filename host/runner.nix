@@ -76,7 +76,7 @@ in
       enable = true;
       name = "monolith";
       url = "https://codeberg.org/";
-      tokenFile = config.age.secrets.forgejo.path;
+      tokenFile = config.sops.secrets.forgejo.path;
       labels = [
         "fnnr:docker://library/${fnnr.imageName}:${fnnr.imageTag}"
         "nix:docker://nixos/nix"

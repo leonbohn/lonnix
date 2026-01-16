@@ -1,13 +1,13 @@
 {
   pkgs,
-  config,
+  user,
   ...
 }:
 {
   services.jellyfin = {
     enable = true;
     openFirewall = true;
-    user = "lonne";
+    user = user;
   };
   environment.systemPackages = [
     pkgs.jellyfin

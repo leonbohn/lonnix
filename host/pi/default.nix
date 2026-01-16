@@ -9,8 +9,6 @@
     ./jellyfin.nix
   ];
 
-  networking.hostName = "lonnix-pi";
-
   # Networkd setup
   systemd.network.enable = true;
   systemd.network.networks."10-wan" = {

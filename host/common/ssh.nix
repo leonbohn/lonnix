@@ -1,6 +1,5 @@
 {
-  pkgs,
-  config,
+  user,
   ...
 }:
 {
@@ -11,12 +10,12 @@
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
       PermitRootLogin = "no";
-      AllowUsers = [ "lonne" ];
+      AllowUsers = [ "${user}" ];
     };
   };
 
-  users.users."lonne".openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF1TaMkt0sCGquHbdLyGTTG4jo5f+A0ShWbxgNULoL5T lonne"
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBlZVkiOvQE4wCLXmuYfvbJVZFyqIjqI8Aa+/EBUqiI lonne"
+  users.users.${user}.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF1TaMkt0sCGquHbdLyGTTG4jo5f+A0ShWbxgNULoL5T ${user}"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBBlZVkiOvQE4wCLXmuYfvbJVZFyqIjqI8Aa+/EBUqiI ${user}"
   ];
 }

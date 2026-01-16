@@ -1,23 +1,18 @@
 # This is your home-manager configuration file
 # Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
 {
-  inputs,
-  outputs,
   lib,
-  secrets,
   config,
+  user,
   pkgs,
+  osConfig,
   ...
 }:
 {
   # You can import other home-manager modules here
   imports = [
-    inputs.agenix.homeManagerModules.default
-
     ./ssh.nix
-
     ./mail.nix
-    ./cal.nix
     ./helix.nix
     ./git.nix
     # ./mozilla.nix
@@ -32,8 +27,8 @@
   ];
 
   home = {
-    username = "lonne";
-    homeDirectory = lib.mkForce "/home/lonne";
+    username = user;
+    homeDirectory = lib.mkForce "/home/${user}";
   };
 
   home.packages = with pkgs; [
@@ -47,7 +42,7 @@
 
   programs.thunderbird = {
     enable = true;
-    profiles."leon" = {
+    profiles.${user} = {
       isDefault = true;
     };
   };
@@ -80,8 +75,8 @@
       sync_frequency = "5m";
       sync_address = "https://api.atuin.sh";
       search_mode = "fuzzy";
-      session_path = config.age.secrets.atuinsession.path;
-      key_path = config.age.secrets.atuinkey.path;
+      session_path = osConfig.sops.secrets.atuinsession.path;
+      key_path = osConfig.sops.secrets.atuinkey.path;
     };
   };
 
@@ -91,23 +86,4 @@
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   home.stateVersion = "25.11";
-
-  age = {
-    identityPaths = [
-      "/home/lonne/.ssh/id_ed25519"
-      "/etc/ssh/ssh_host_ed25519_key"
-    ];
-
-    secrets = {
-      mail.file = secrets + /mail.age;
-      radicale.file = secrets + /radicale.age;
-      atuinkey = {
-        file = secrets + /atuinkey.age;
-      };
-      atuinsession = {
-        file = secrets + /atuinsession.age;
-      };
-    };
-  };
-
 }

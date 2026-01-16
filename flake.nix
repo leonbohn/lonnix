@@ -18,15 +18,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # agenix = {
-    #   url = "github:ryantm/agenix";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-    agenix = {
-      url = "github:yaxitech/ragenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -43,7 +34,6 @@
       nixpkgs-unstable,
       home-manager,
       nixos-hardware,
-      agenix,
       nix-index-database,
       nix2container,
       sops-nix,
@@ -51,6 +41,10 @@
     }@inputs:
     let
       inherit (self) outputs;
+
+      user = "lonne";
+      pref = "lonnix";
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -73,11 +67,17 @@
 
       # Helper function for NixOS configurations
       mkNixos =
-        nickName: system:
+        nick: system:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
-            inherit inputs outputs nickName;
+            inherit
+              inputs
+              outputs
+              nick
+              user
+              pref
+              ;
 
             nix2container = nix2container.packages.${system}.nix2container;
 
@@ -86,7 +86,6 @@
               config.allowUnfree = true;
             };
 
-            secrets = ./secrets;
             sopsrets = ./secrets.yaml;
           };
           modules = [
@@ -98,7 +97,7 @@
 
             }
             ./host/common
-            ./host/${nickName}
+            ./host/${nick}
 
             nix-index-database.nixosModules.default
 
@@ -106,7 +105,6 @@
               programs.nix-index-database.comma.enable = true;
             }
 
-            agenix.nixosModules.default
             home-manager.nixosModules.home-manager
             sops-nix.nixosModules.sops
 
@@ -114,14 +112,23 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = {
-                inherit inputs nickName;
-
-                secrets = ./secrets;
+                inherit
+                  inputs
+                  nick
+                  user
+                  pref
+                  ;
               };
-              home-manager.users.lonne = import ./home/lonne;
+
+              home-manager.users.${user} = {
+                imports = [
+                  ./home/${user}
+                  inputs.sops-nix.homeManagerModules.sops
+                ];
+              };
             }
             # Add hardware-specific tweaks for the Pi
-            (if nickName == "pi" then nixos-hardware.nixosModules.raspberry-pi-4 else { })
+            (if nick == "pi" then nixos-hardware.nixosModules.raspberry-pi-4 else { })
           ];
         };
     in
@@ -129,12 +136,12 @@
       formatter = forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
 
       nixosConfigurations = {
-        lonnix-pc = mkNixos "pc" "x86_64-linux";
-        lonnix-pi = mkNixos "pi" "aarch64-linux";
+        "${pref}-pc" = mkNixos "pc" "x86_64-linux";
+        "${pref}-pi" = mkNixos "pi" "aarch64-linux";
       };
 
-      homeConfigurations."lonne" = home-manager.lib.homeManagerConfiguration {
-        modules = [ agenix.homeManagerModules.default ];
-      };
+      # homeConfigurations.${user} = home-manager.lib.homeManagerConfiguration {
+      #   modules = [ ];
+      # };
     };
 }
